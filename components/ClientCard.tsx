@@ -7,9 +7,9 @@ interface ClientCardProps {
   client: Client;
 }
 
-export default function ClientCard({ client }: ClientCardProps) {
-  const averageScore = getAverageScore(client.id);
-  
+export default async function ClientCard({ client }: ClientCardProps) {
+  const averageScore = await getAverageScore(client.id); 
+
   return (
     <Link href={`/clients/${client.id}`}>
       <div className="border border-gray-700 rounded-lg p-6 hover:bg-gray-900 transition-colors cursor-pointer">

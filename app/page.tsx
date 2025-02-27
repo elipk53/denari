@@ -1,8 +1,8 @@
 import { getClients } from '@/lib/data';
 import ClientCard from '@/components/ClientCard';
 
-export default function Home() {
-  const clients = getClients();
+export default async function Home() {
+  const clients = await getClients();
 
   return (
     <div>

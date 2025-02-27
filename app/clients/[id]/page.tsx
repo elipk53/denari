@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getClientById, getAverageScore } from '@/lib/data';
+import { getClientById, getAverageScore, getClients } from '@/lib/data';
 import ScoreCard from '@/components/ScoreCard';
 import EmailList from '@/components/EmailList';
 
@@ -10,14 +10,14 @@ interface ClientPageProps {
   };
 }
 
-export default function ClientPage({ params }: ClientPageProps) {
-  const client = getClientById(params.id);
+export default async function ClientPage({ params }: ClientPageProps) {
+  const client = await getClientById(params.id);
   
   if (!client) {
     notFound();
   }
   
-  const averageScore = getAverageScore(client.id);
+  const averageScore = await getAverageScore(client.id);
 
   return (
     <div>
@@ -44,10 +44,9 @@ export default function ClientPage({ params }: ClientPageProps) {
   );
 }
 
-export function generateStaticParams() {
-  return [
-    { id: '1' },
-    { id: '2' },
-    { id: '3' },
-  ];
+export async function generateStaticParams() {
+  const clients = await getClients();
+  return clients.map(client => ({
+    id: client.id,
+  }));
 }
