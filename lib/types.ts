@@ -1,14 +1,22 @@
 export interface Email {
   id: string;
+  sender: string;
   subject: string;
   body: string;
-  score: number;
-  date: string;
+  receivedAt: string;
+  conversationId: string;
+  scores: {
+    responseTime: number;
+    fairness: number;
+    respect: number;
+    professionalism: number;
+    totalScore: number;
+  };
 }
 
 export interface Client {
   id: string;
-  email: string;
+  sender: string;
   company: string;
   emails: Email[];
 }

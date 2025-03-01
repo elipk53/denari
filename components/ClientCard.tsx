@@ -8,13 +8,13 @@ interface ClientCardProps {
 }
 
 export default async function ClientCard({ client }: ClientCardProps) {
-  const averageScore = await getAverageScore(client.id); 
+  const averageScore = await getAverageScore(client); 
 
   return (
     <Link href={`/clients/${client.id}`}>
       <div className="border border-gray-700 rounded-lg p-6 hover:bg-gray-900 transition-colors cursor-pointer">
         <h2 className="text-xl font-bold mb-2">{client.company}</h2>
-        <p className="text-gray-300 mb-4">{client.email}</p>
+        <p className="text-gray-300 mb-4">{client.sender}</p>
         <div className="flex justify-between items-center">
           <span className="text-sm text-gray-400">{client.emails.length} emails</span>
           <div className="flex items-center">

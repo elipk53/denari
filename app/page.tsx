@@ -1,8 +1,16 @@
 import { getClients } from '@/lib/data';
 import ClientCard from '@/components/ClientCard';
+import { getEmailsFromAllUsers } from '@/lib/emailService';
 
 export default async function Home() {
   const clients = await getClients();
+  let emails;
+  try {
+    emails = await getEmailsFromAllUsers();
+    console.log("emails", emails.length, emails);
+  } catch (error) {
+    console.error("Error fetching emails:", error);
+  }
 
   return (
     <div>
