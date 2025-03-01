@@ -57,7 +57,7 @@ async function getEmailsForUser(userId: string, token: string) {
   }
 }
 
-export async function getEmailsFromAllUsers() {
+export async function fetchEmailsAndSave() {
   const token = await getAccessToken();
   const userIds = await getAllUsers();
   let allEmails: any[] = [];
