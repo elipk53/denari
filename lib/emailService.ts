@@ -8,6 +8,19 @@ const GRAPH_API_BASE_URL = "https://graph.microsoft.com/v1.0";
 const ORGANIZATION_DOMAINS = process.env.ORGANIZATION_DOMAINS?.split(",") || [
   "spellcpa.com",
 ];
+const POPULAR_DOMAINS = [
+  "gmail.com",
+  "yahoo.com",
+  "hotmail.com",
+  "aol.com",
+  "outlook.com",
+  "comcast.net",
+  "icloud.com",
+  "msn.com",
+  "hotmail.co.uk",
+  "sbcglobal.net",
+  "live.com",
+];
 
 async function getAllUsers(): Promise<string[]> {
   const token = await getAccessToken();
@@ -89,16 +102,21 @@ function groupEmailsBySender(emails: any[]) {
     const senderEmail = email.sender || "Unknown Sender";
     const emailDomain = senderEmail.split("@")[1] || "Unknown Domain";
 
-    if (!groupedEmails[senderEmail]) {
-      groupedEmails[senderEmail] = {
+    const clientKey = POPULAR_DOMAINS.includes(emailDomain)
+      ? senderEmail
+      : emailDomain;
+
+    if (!groupedEmails[clientKey]) {
+      groupedEmails[clientKey] = {
         sender: senderEmail,
-        client: emailDomain,
+        company: clientKey,
         emails: [],
       };
     }
 
-    groupedEmails[senderEmail].emails.push({
+    groupedEmails[clientKey].emails.push({
       id: email.id,
+      sender: senderEmail,
       subject: email.subject,
       body: email.body,
       receivedAt: email.receivedAt,

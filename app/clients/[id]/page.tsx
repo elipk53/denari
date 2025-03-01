@@ -29,7 +29,6 @@ export default async function ClientPage({ params }: ClientPageProps) {
       
       <header className="mb-8">
         <h1 className="text-3xl font-bold">{client.company}</h1>
-        <p className="text-gray-400 mt-2">{client.sender}</p>
       </header>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
