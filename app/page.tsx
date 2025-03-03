@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getClients } from '@/lib/data';
 import ClientCard from '@/components/ClientCard';
 

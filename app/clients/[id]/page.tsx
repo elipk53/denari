@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getClientById, getAverageScore, getClients } from '@/lib/data';
@@ -41,11 +43,4 @@ export default async function ClientPage({ params }: ClientPageProps) {
       </div>
     </div>
   );
-}
-
-export async function generateStaticParams() {
-  const clients = await getClients();
-  return clients.map(client => ({
-    id: client.id,
-  }));
 }

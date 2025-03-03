@@ -1,3 +1,6 @@
+export const revalidate = 0;
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import { fetchEmailsAndSave } from "@/lib/emailService";
 

@@ -1,3 +1,5 @@
+export const revalidate = 0;
+
 import { connectDb } from "./mongodb";
 import { Client, Email } from "./types";
 import { ObjectId } from "mongodb";
