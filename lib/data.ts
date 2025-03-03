@@ -40,28 +40,26 @@ export async function saveClientsToDb(clients: Client[]) {
   const responseTimes = calculateResponseTime(allEmails);
 
   for (const client of clients) {
-    const existingClient = await collection.findOne({ sender: client.sender });
+    const existingClient = await collection.findOne({ company: client.company });
 
     if (existingClient) {
-      const existingEmails = existingClient.emails.map((e: Email) => e.id);
-      const newEmails = client.emails.filter(
-        (email) => !existingEmails.includes(email.id)
-      );
+      const existingEmailIds = new Set(existingClient.emails.map((e: Email) => e.id));
+      const newEmails = client.emails.filter((email) => !existingEmailIds.has(email.id));
 
       for (const email of newEmails) {
         const responseTime = responseTimes[email.id] || -1;
         email.scores = await analyzeEmail(email.body, responseTime);
       }
 
-      const updatedEmails = [...existingClient.emails, ...newEmails].sort(
-        (a, b) =>
-          new Date(b.receivedAt).getTime() - new Date(a.receivedAt).getTime()
-      );
+      const updatedEmails = [...existingClient.emails, ...newEmails]
+        .filter((email, index, self) => self.findIndex(e => e.id === email.id) === index)
+        .sort((a, b) => new Date(b.receivedAt).getTime() - new Date(a.receivedAt).getTime());
 
       await collection.updateOne(
-        { sender: client.sender },
+        { company: client.company },
         { $set: { emails: updatedEmails } }
       );
+
     } else {
       for (const email of client.emails) {
         const responseTime = responseTimes[email.id] || -1;
