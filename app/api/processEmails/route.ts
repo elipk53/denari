@@ -1,5 +1,6 @@
 export const revalidate = 0;
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 import { NextResponse } from "next/server";
 import { fetchEmailsAndSave } from "@/lib/emailService";
