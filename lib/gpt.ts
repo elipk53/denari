@@ -86,8 +86,7 @@ export async function analyzeEmail(emailText: string, responseTime: number) {
     const professionalismExplanation =
       parsedResponse.professionalism?.explanation || "No explanation provided.";
 
-    const totalScore =
-      responseTimeScore + fairnessScore + respectScore + professionalismScore;
+    const totalScore = fairnessScore + respectScore + professionalismScore;
 
     return {
       responseTime: {

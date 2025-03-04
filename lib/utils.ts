@@ -7,9 +7,9 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getScoreColor(score: number): string {
-  if (score >= 15) return 'text-green-400';
-  if (score >= 12) return 'text-blue-400';
-  if (score >= 8) return 'text-yellow-400';
+  if (score >= 12) return 'text-green-400';
+  if (score >= 8) return 'text-blue-400';
+  if (score >= 5) return 'text-yellow-400';
   return 'text-red-400';
 }
 
