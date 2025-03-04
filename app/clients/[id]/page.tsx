@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { getClientById, getAverageScore, getClients } from '@/lib/data';
 import ScoreCard from '@/components/ScoreCard';
 import EmailList from '@/components/EmailList';
+import ScoreRadarChart from '@/components/ScoreRadarChart';
 
 interface ClientPageProps {
   params: {
@@ -19,7 +20,7 @@ export default async function ClientPage({ params }: ClientPageProps) {
     notFound();
   }
   
-  const averageScore = await getAverageScore(client);
+  const averageScores = getAverageScore(client);
 
   return (
     <div>
@@ -35,7 +36,10 @@ export default async function ClientPage({ params }: ClientPageProps) {
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-1">
-          <ScoreCard score={averageScore} emailCount={client.emails.length} />
+          <ScoreCard score={averageScores.totalScore} emailCount={client.emails.length} />
+          <div className="mt-6">
+            <ScoreRadarChart scores={averageScores} />
+          </div>
         </div>
         <div className="md:col-span-2">
           <EmailList emails={client.emails} />

@@ -73,17 +73,51 @@ export async function saveClientsToDb(clients: Client[]) {
   }
 }
 
-export async function getAverageScore(client: Client): Promise<number> {
-  if (!client || client.emails.length === 0) return 0;
+export function getAverageScore(client: Client) {
+  if (!client || client.emails.length === 0) {
+    return {
+      responseTime: 0,
+      fairness: 0,
+      respect: 0,
+      professionalism: 0,
+      totalScore: 0,
+    };
+  }
 
   const scoredEmails = client.emails.filter(
-    (email) => email.scores?.totalScore !== undefined
+    (email) => email.scores && email.scores.totalScore !== undefined
   );
-  if (scoredEmails.length === 0) return 0;
 
-  const totalScore = scoredEmails.reduce(
-    (sum, email) => sum + (email.scores?.totalScore || 0),
-    0
+  if (scoredEmails.length === 0) {
+    return {
+      responseTime: 0,
+      fairness: 0,
+      respect: 0,
+      professionalism: 0,
+      totalScore: 0,
+    };
+  }
+
+  const totalScores = scoredEmails.reduce(
+    (acc, email) => {
+      acc.responseTime += email.scores.responseTime.score || 0;
+      acc.fairness += email.scores.fairness.score || 0;
+      acc.respect += email.scores.respect.score || 0;
+      acc.professionalism += email.scores.professionalism.score || 0;
+      acc.totalScore += email.scores.totalScore || 0;
+      return acc;
+    },
+    { responseTime: 0, fairness: 0, respect: 0, professionalism: 0, totalScore: 0 }
   );
-  return Math.round((totalScore / scoredEmails.length) * 10) / 10;
+
+  const emailCount = scoredEmails.length;
+
+  return {
+    responseTime: Math.round((totalScores.responseTime / emailCount) * 10) / 10,
+    fairness: Math.round((totalScores.fairness / emailCount) * 10) / 10,
+    respect: Math.round((totalScores.respect / emailCount) * 10) / 10,
+    professionalism: Math.round((totalScores.professionalism / emailCount) * 10) / 10,
+    totalScore: Math.round((totalScores.totalScore / emailCount) * 10) / 10,
+  };
 }
+
