@@ -56,6 +56,7 @@ async function getEmailsForUser(userId: string, token: string) {
     return emails.map((email: any) => ({
       id: email.id,
       sender: email.from?.emailAddress?.address || "Unknown Sender",
+      receiver: email.toRecipients?.[0]?.emailAddress?.address || "Unknown Receiver",
       subject: email.subject || "No Subject",
       body: convertHtmlToMarkdown(email.body?.content) || "No Content",
       receivedAt: new Date(email.receivedDateTime),
@@ -117,6 +118,7 @@ function groupEmailsBySender(emails: any[]) {
     groupedEmails[clientKey].emails.push({
       id: email.id,
       sender: senderEmail,
+      receiver: email.receiver,
       subject: email.subject,
       body: email.body,
       receivedAt: email.receivedAt,

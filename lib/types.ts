@@ -1,6 +1,7 @@
 export interface Email {
   id: string;
   sender: string;
+  receiver: string;
   subject: string;
   body: string;
   receivedAt: string;
