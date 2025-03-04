@@ -64,10 +64,11 @@ export async function analyzeEmail(emailText: string, responseTime: number) {
     const prompt = generateScoringPrompt(emailText);
 
     const response = await groq.chat.completions.create({
-      model: "llama3-8b-8192",
-      messages: [{ role: "system", content: prompt }],
-      temperature: 0,
-      max_tokens: 1000,
+        model: process.env.GROQ_MODEL || "llama-3.3-70b-specdec",
+        messages: [{ role: "system", content: prompt }],
+        temperature: 0,
+        max_tokens: 1024,
+        response_format: { type: "json_object" },
     });
 
     const rawText = response.choices[0]?.message?.content?.trim() || "{}";
