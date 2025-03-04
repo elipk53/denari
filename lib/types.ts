@@ -6,10 +6,10 @@ export interface Email {
   receivedAt: string;
   conversationId: string;
   scores: {
-    responseTime: number;
-    fairness: number;
-    respect: number;
-    professionalism: number;
+    responseTime: { score: number; explanation: string };
+    fairness: { score: number; explanation: string };
+    respect: { score: number; explanation: string };
+    professionalism: { score: number; explanation: string };
     totalScore: number;
   };
 }

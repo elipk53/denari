@@ -1,73 +1,123 @@
-import OpenAI from "openai";
+import Groq from "groq-sdk";
+import { calculateResponseTimeScore } from "./utils";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY,
 });
 
-function generateScoringPrompt(emailText: string, responseTime: number): string {
+function generateScoringPrompt(emailText: string): string {
   return `
-  You are an AI model that evaluates email communications based on four key business interaction metrics:
-  1. **Response Time** (Did the sender respond quickly? Response time is ${responseTime} hours)
-  2. **Fairness** (Was the request reasonable?)
-  3. **Respect** (Was the email polite and respectful?)
-  4. **Professionalism** (Did the email maintain a professional tone?)
+  You are an AI assistant trained to evaluate email communications based on four key business interaction metrics. Each metric must be scored from 1 (worst) to 5 (best), strictly following this rubric:
 
-  Each metric should be rated on a scale from 1 (worst) to 5 (best), following these rules:
+  **Rubric for Scoring Emails:**
+  
+  - **Fairness:**
+    - 1: The client request was **not reasonable at all**.
+    - 2: The client request was **somewhat not reasonable**.
+    - 3: The client request was **somewhat reasonable**.
+    - 4: The client request was **reasonable**.
+    - 5: The client request was **very reasonable**.
 
-  - **Response Time**:
-    - 1: Response took **longer than 4 weeks**.
-    - 2: Response took **within 4 weeks**.
-    - 3: Response took **within 1 week**.
-    - 4: Response took **within 16 hours**.
-    - 5: Response took **within 4 hours**.
+  - **Respect:**
+    - 1: The client request was **not respectful at all**.
+    - 2: The client request was **somewhat not respectful**.
+    - 3: The client request was **somewhat respectful**.
+    - 4: The client request was **respectful**.
+    - 5: The client request was **very respectful**.
 
-  - **Fairness, Respect, and Professionalism** use standard scoring.
+  - **Professionalism:**
+    - 1: The client request was **not professional at all**.
+    - 2: The client request was **somewhat not professional**.
+    - 3: The client request was **somewhat professional**.
+    - 4: The client request was **professional**.
+    - 5: The client request was **very professional**.
 
   **Email Text for Evaluation:**
   """
   ${emailText}
   """
 
-  **Return a JSON object**:
+  **Return ONLY a valid JSON object with this exact format:**
   {
-    "response_time": <score from 1-5>,
-    "fairness": <score from 1-5>,
-    "respect": <score from 1-5>,
-    "professionalism": <score from 1-5>,
-    "total_score": <sum of all scores>
+    "fairness": {
+      "score": 1-5,
+      "explanation": "Detailed reasoning for the fairness score."
+    },
+    "respect": {
+      "score": 1-5,
+      "explanation": "Detailed reasoning for the respect score."
+    },
+    "professionalism": {
+      "score": 1-5,
+      "explanation": "Detailed reasoning for the professionalism score."
+    }
   }
+
+  No extra words, no explanations outside of the JSON. The response **must be** valid JSON and nothing else.
   `;
 }
 
 export async function analyzeEmail(emailText: string, responseTime: number) {
-  try {
-    const prompt = generateScoringPrompt(emailText, responseTime);
+  const responseTimeScore = calculateResponseTimeScore(responseTime);
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4",
+  try {
+    const prompt = generateScoringPrompt(emailText);
+
+    const response = await groq.chat.completions.create({
+      model: "llama3-8b-8192",
       messages: [{ role: "system", content: prompt }],
-      temperature: 0.3,
-      max_tokens: 200,
+      temperature: 0,
+      max_tokens: 1000,
     });
 
-    const jsonText = response.choices[0]?.message?.content?.trim() || "{}";
-    const scores = JSON.parse(jsonText);
+    const rawText = response.choices[0]?.message?.content?.trim() || "{}";
+    const jsonText = rawText.replace(/```json|```/g, "").trim();
+    const parsedResponse = JSON.parse(jsonText);
+
+    const fairnessScore = parsedResponse.fairness?.score || 1;
+    const respectScore = parsedResponse.respect?.score || 1;
+    const professionalismScore = parsedResponse.professionalism?.score || 1;
+
+    const fairnessExplanation =
+      parsedResponse.fairness?.explanation || "No explanation provided.";
+    const respectExplanation =
+      parsedResponse.respect?.explanation || "No explanation provided.";
+    const professionalismExplanation =
+      parsedResponse.professionalism?.explanation || "No explanation provided.";
+
+    const totalScore =
+      responseTimeScore + fairnessScore + respectScore + professionalismScore;
 
     return {
-      responseTime: scores.response_time,
-      fairness: scores.fairness,
-      respect: scores.respect,
-      professionalism: scores.professionalism,
-      totalScore: scores.total_score,
+      responseTime: {
+        score: responseTimeScore,
+        explanation: `${responseTime} hours`,
+      },
+      fairness: { score: fairnessScore, explanation: fairnessExplanation },
+      respect: { score: respectScore, explanation: respectExplanation },
+      professionalism: {
+        score: professionalismScore,
+        explanation: professionalismExplanation,
+      },
+      totalScore: totalScore,
     };
   } catch (error) {
     console.error("Error analyzing email:", error);
     return {
-        responseTime: null,
-        fairness: null,
-        respect: null,
-        professionalism: null,
-        totalScore: null,
-      };
+      responseTime: {
+        score: responseTimeScore,
+        explanation: `${responseTime} hours`,
+      },
+      fairness: {
+        score: null,
+        explanation: "Error processing fairness score.",
+      },
+      respect: { score: null, explanation: "Error processing respect score." },
+      professionalism: {
+        score: null,
+        explanation: "Error processing professionalism score.",
+      },
+      totalScore: null,
+    };
   }
 }

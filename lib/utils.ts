@@ -17,3 +17,11 @@ export function convertHtmlToMarkdown(html: string): string {
   const turndownService = new TurndownService();
   return turndownService.turndown(html);
 }
+
+export function calculateResponseTimeScore(responseTimeInHours: number): number {
+  if (responseTimeInHours > 24 * 4) return 1; 
+  if (responseTimeInHours > 24 * 1) return 2; 
+  if (responseTimeInHours > 16) return 3; 
+  if (responseTimeInHours > 4) return 4; 
+  return 5; 
+}
