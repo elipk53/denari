@@ -27,10 +27,10 @@ export default function ScoreRadarChart({ scores }: ScoreRadarChartProps) {
 
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
+      <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data} >
         <PolarGrid />
-        <PolarAngleAxis dataKey="metric" />
-        <PolarRadiusAxis domain={[0, 5]} tickCount={6} />
+        <PolarAngleAxis dataKey="metric" tick={{dy: -10 }}/>
+        <PolarRadiusAxis angle={90} domain={[0, 5]} tickCount={6} />
         <Radar
           name="Scores"
           dataKey="score"
